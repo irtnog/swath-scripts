@@ -18,10 +18,11 @@ import com.swath.cmd.PlanetWarp;
  * @author xenophon
  * 
  */
-public class FighterGridUpdaterPersonalToCorporate extends UserDefinedScript {
+public class ToggleFighterGridOwnership extends UserDefinedScript {
 	private Parameter bingoFuel;
 	private Planet planet;
 	private int returnToSector;
+	private Parameter toCorporateP;
 
 	@Override
 	public void endScript(boolean finished) {
@@ -37,7 +38,7 @@ public class FighterGridUpdaterPersonalToCorporate extends UserDefinedScript {
 
 	@Override
 	public String getName() {
-		return "Fighter Grid Updater (Personal to Corporate)";
+		return "Toggle Fighter Grid Ownership";
 	}
 
 	@Override
@@ -63,13 +64,25 @@ public class FighterGridUpdaterPersonalToCorporate extends UserDefinedScript {
 		bingoFuel.setType(Parameter.INTEGER);
 		bingoFuel.setInteger(100000);
 
+		// Ask if we're switching to corporate ownership.
+		toCorporateP = new Parameter(
+				"Enter 1 if switching to corporate ownership");
+		toCorporateP.setType(Parameter.INTEGER);
+		toCorporateP.setInteger(0);
+
 		registerParam(bingoFuel);
+		registerParam(toCorporateP);
 
 		return true;
 	}
 
 	@Override
 	public boolean runScript() throws Exception {
+		int owner = Swath.PERSONAL;
+		if (toCorporateP.getInteger() == 1) {
+			owner = Swath.CORPORATE;
+		}
+
 		while (true) {
 			// Always start from within the citadel.
 			if (!atPrompt(Swath.CITADEL_PROMPT)) {
@@ -83,11 +96,15 @@ public class FighterGridUpdaterPersonalToCorporate extends UserDefinedScript {
 			}
 
 			// Find all personal fighter deployment.
-			Tools.SectorSearchParameters nearbyPersonalFighters;
-			nearbyPersonalFighters = new Tools.SectorSearchParameters();
-			nearbyPersonalFighters.setFighterAmount(true, 1);
-			nearbyPersonalFighters.setFighterOwner(Swath.you);
-			int sectors[] = Tools.findSectors(nearbyPersonalFighters);
+			Tools.SectorSearchParameters nearbyFighters;
+			nearbyFighters = new Tools.SectorSearchParameters();
+			nearbyFighters.setFighterAmount(true, 1);
+			if (toCorporateP.getInteger() == 1) {
+				nearbyFighters.setFighterOwner(Swath.you);
+			} else {
+				nearbyFighters.setFighterOwner(Swath.you.corporation());
+			}
+			int sectors[] = Tools.findSectors(nearbyFighters);
 			if (sectors.length == 0) {
 				return true;
 			}
@@ -100,7 +117,7 @@ public class FighterGridUpdaterPersonalToCorporate extends UserDefinedScript {
 			LiftOff.exec();
 
 			// Switch the fighters here from personal to corporate.
-			DropTakeFighters.exec(Swath.sector.fighters(), Swath.CORPORATE,
+			DropTakeFighters.exec(Swath.sector.fighters(), owner,
 					Swath.sector.ftrType());
 
 			// Return to base.
