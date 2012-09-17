@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2012, Matthew X. Economou <xenophon@irtnog.org>
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 import java.util.Random;
 
 import com.swath.Parameter;
@@ -27,13 +43,13 @@ public class NewPlanetBuster extends UserDefinedScript {
 	public boolean initScript() throws Exception {
 		// Start from the command prompt in the Star Dock's sector.
 		if (!atPrompt(Swath.COMMAND_PROMPT)) {
-			return false;
+			return false; // TODO: throw exception instead
 		}
 		if (Swath.main.currSector() != Swath.main.stardock()) {
-			return false;
+			return false; // TODO: throw exception instead
 		}
 
-		// Initialize the RNG.
+		// Initialize the random number generator (RNG).
 		rng = new Random();
 
 		targetExperienceLevel = new Parameter("Target experience level");
@@ -61,7 +77,8 @@ public class NewPlanetBuster extends UserDefinedScript {
 	@Override
 	public boolean runScript() throws Exception {
 		while (Swath.you.experience() < targetExperienceLevel.getInteger()) {
-			// TODO: Stop if fighters or shields are dangerously low.
+			// NOTE: Because we're planet busting at Star Dock, we
+			// don't need to worry about navigation hazards.
 
 			// Re-supply.
 			if ((Swath.ship.genesisTorpedos() == 0)
@@ -78,11 +95,16 @@ public class NewPlanetBuster extends UserDefinedScript {
 				LeaveStarDock.exec();
 			}
 
-			// Pick a number, any number, 0-999.
+			// Pick a number, any number, 0-999. That way more than
+			// one person can be running this script, and the chance
+			// they'll blow up the wrong planet (or run into some
+			// other conflict) is reduced.
 			int tag = rng.nextInt(1000);
 			String name = "I'm Spartacus! #" + tag;
 
-			// Create a new planet and land on it.
+			// Create a new planet, land on it, and blow it up. The
+			// scan is necessary prior to landing because the Genesis
+			// torpedo sequence doesn't output a planet number.
 			LaunchGenesisTorpedo.exec(name, Swath.PERSONAL);
 			Planet planets[] = ScanPlanets.exec();
 			for (Planet planet : planets) {

@@ -1,5 +1,17 @@
 /**
+ * Copyright (c) 2012, Matthew X. Economou <xenophon@irtnog.org>
  * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 import com.swath.Parameter;
@@ -46,15 +58,16 @@ public class ToggleFighterGridOwnership extends UserDefinedScript {
 		// Start from within the citadel of the planet you want to
 		// use for transportation.
 		if (!atPrompt(Swath.CITADEL_PROMPT)) {
-			return false;
+			return false; // TODO throw exception instead
 		}
 
+		// Remember which planet we're using and where we started.
 		planet = Swath.ship.onPlanet();
 		returnToSector = Swath.ship.sector();
 
 		// The planet must have a transwarp drive.
 		if (planet.level() < 4) {
-			return false;
+			return false; // TODO throw exception instead
 		}
 
 		// Ask for the minimum fuel level, which when reached will
@@ -86,16 +99,16 @@ public class ToggleFighterGridOwnership extends UserDefinedScript {
 		while (true) {
 			// Always start from within the citadel.
 			if (!atPrompt(Swath.CITADEL_PROMPT)) {
-				return false;
+				return false; // TODO throw exception instead
 			}
 
 			// Check current fuel levels.
 			int currentFuel = planet.productAmounts()[Swath.FUEL_ORE];
 			if (currentFuel <= bingoFuel.getInteger()) {
-				return false;
+				return true;
 			}
 
-			// Find all personal fighter deployment.
+			// Find all personal/corporate fighter deployments.
 			Tools.SectorSearchParameters nearbyFighters;
 			nearbyFighters = new Tools.SectorSearchParameters();
 			nearbyFighters.setFighterAmount(true, 1);
@@ -109,7 +122,7 @@ public class ToggleFighterGridOwnership extends UserDefinedScript {
 				return true;
 			}
 
-			// TODO: Sort the results nearest to farthest.
+			// TODO sort the results nearest to farthest
 
 			// Warp the planet to the first sector on the list.
 			PlanetWarp.exec(sectors[0]);
