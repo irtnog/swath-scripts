@@ -4,21 +4,12 @@
  Run-time Environment
 ======================
 
-FeedsFeedsFeedsFeeds targets Python 2.7.  Other Python versions (newer
-or older) might work.
+These scripts target SWATH 1.9.8 and the latest update to the Java 7
+Standard Environment.  Other Java versions (newer or older) might work.
 
 ==============
  Dependencies
 ==============
 
-FeedsFeedsFeedsFeeds relies on the following Python packages:
-
-* feedparser
-
-* facebook-sdk
-
-* python-twitter
-
-* linkedin
-
-* google-api-python-client
+These scripts rely only on the SWATH Java API and the standard Java
+class library.
