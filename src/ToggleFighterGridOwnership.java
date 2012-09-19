@@ -37,18 +37,6 @@ public class ToggleFighterGridOwnership extends UserDefinedScript {
 	private Parameter toCorporateP;
 
 	@Override
-	public void endScript(boolean finished) {
-		if (finished == true) {
-			try {
-				PlanetWarp.exec(returnToSector);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@Override
 	public String getName() {
 		return "Toggle Fighter Grid Ownership";
 	}
@@ -102,9 +90,11 @@ public class ToggleFighterGridOwnership extends UserDefinedScript {
 				return false; // TODO throw exception instead
 			}
 
-			// Check current fuel levels.
+			// Check current fuel levels; return to the starting
+			// sector if low.
 			int currentFuel = planet.productAmounts()[Swath.FUEL_ORE];
 			if (currentFuel <= bingoFuel.getInteger()) {
+				PlanetWarp.exec(returnToSector);
 				return true;
 			}
 
